@@ -21,11 +21,11 @@ namespace FilterFramework.Controller
             return MyFilterCollection.ApplyFilter(coll);
         }
 
-        public void HandleNewFilterRequest(string expression)
+        public IFilter<T> HandleNewFilterRequest(string expression)
         {
-            BinaryExpressionFilter<T> filter = new BinaryExpressionFilter<T>("Ssid", BinaryOperators.Equals,
-                                                                             "Rockstarz2");
+            IFilter<T> filter = new BinaryExpressionFilter<T>("Ssid", "=", "Rockstarz2") {IsEnabled = true};
             MyFilterCollection.Add(filter);
+            return filter;
         }
     }
 }

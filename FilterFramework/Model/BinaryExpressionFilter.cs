@@ -9,39 +9,46 @@ namespace FilterFramework.Model
 {
     internal class BinaryExpressionFilter<T> : IFilter<T>
     {
-        private ParameterExpression MyParameterExpression { get; set; }
-        private MemberExpression MyMemberExpression { get; set; }
-        private ConstantExpression MyConstantExpression { get; set; }
+        private static readonly ParameterExpression MyParameterExpression = Expression.Parameter(typeof (T), "T");
+        private MemberExpression MyLeftExpression { get; set; }
+        private ConstantExpression MyRightExpression { get; set; }
         private BinaryExpression MyBinaryExpression { get; set; }
+        public Expression<Func<T, bool>> MyExpressionFunc { get; private set; }
 
-        public BinaryExpressionFilter(string left, BinaryOperators op, string right)
+        public string LeftExpression
         {
-            MyParameterExpression = Expression.Parameter(typeof (T), "T");
-            MyMemberExpression = Expression.Property(MyParameterExpression, left);
-            MyConstantExpression = Expression.Constant(right);
-            MyBinaryExpression = BinaryOperatorFactory.CreateBinaryExpression(MyMemberExpression, op,
-                                                                              MyConstantExpression);
-
-            MyExpressionFunc = Expression.Lambda<Func<T, bool>>(MyBinaryExpression, MyParameterExpression);
+            get { return MyLeftExpression.Member.Name; }
         }
 
-        public Expression<Func<T, bool>> MyExpressionFunc { get; private set; }
-    }
+        public string RightExpression
+        {
+            get { return MyRightExpression.Value.ToString(); }
+        }
 
-    internal enum BinaryOperators
-    {
-        Equals = 0,
-        LessThanOrEquals,
+        public string Operator { get; private set; }
+
+        public bool IsEnabled { get; set; }
+
+        public BinaryExpressionFilter(string left, string op, string right)
+        {
+            MyLeftExpression = Expression.Property(MyParameterExpression, left);
+            MyRightExpression = Expression.Constant(right);
+            MyBinaryExpression = BinaryOperatorFactory.CreateBinaryExpression(MyLeftExpression, op,
+                                                                              MyRightExpression);
+            Operator = op;
+            MyExpressionFunc = Expression.Lambda<Func<T, bool>>(MyBinaryExpression, MyParameterExpression);
+            MyExpressionFunc.Compile();
+        }
     }
 
     internal class BinaryOperatorFactory
     {
-        internal static BinaryExpression CreateBinaryExpression(Expression left, BinaryOperators op,
+        internal static BinaryExpression CreateBinaryExpression(Expression left, string op,
                                                                 ConstantExpression right)
         {
             switch (op)
             {
-                case BinaryOperators.Equals:
+                case "=":
                     return Expression.Equal(left, right);
             }
             throw new InvalidOperationException("Invalid Operator for Filter");

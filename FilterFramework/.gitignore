@@ -1,3 +1,5 @@
 bin/*
 obj/*
 _ReSharper*.*
+*.ReSharper
+FilterFramework.5.1.ReSharper.user

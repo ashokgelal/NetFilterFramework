@@ -14,5 +14,7 @@ namespace FilterFramework.Model
         string RightExpression { get; }
         string Operator { get; }
         bool IsEnabled { get; set; }
+        bool TryChangingOperator(string op);
+        bool TryChangingRightExpression(string right);
     }
 }

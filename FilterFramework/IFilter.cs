@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 #endregion
 
-namespace FilterFramework.Model
+namespace FilterFramework
 {
     public interface IFilter<T>
     {

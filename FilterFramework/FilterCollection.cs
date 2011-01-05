@@ -7,19 +7,29 @@ using System.Linq.Expressions;
 
 #endregion
 
-namespace FilterFramework.Model
+namespace FilterFramework
 {
     public class FilterCollection<T> : List<IFilter<T>>
     {
+        #region Members and Properties
+
         private Expression<Func<T, bool>> MyPredicate { get; set; }
         private readonly Expression<Func<T, bool>> _myDefaultPredicate;
         private Expression<Func<T, bool>> MyDefaultPredicate { get { return _myDefaultPredicate; }}
+
+        #endregion
+
+        #region Constructor, Initialization, and Disposal
 
         public FilterCollection()
         {
             _myDefaultPredicate = PredicateBuilderExtension.True<T>();
             MyPredicate = MyDefaultPredicate;
         }
+
+        #endregion
+
+        #region Methods
 
         public new void Add(IFilter<T> f)
         {
@@ -40,5 +50,7 @@ namespace FilterFramework.Model
             MyPredicate = MyDefaultPredicate;
             base.Clear();
         }
+
+        #endregion
     }
 }

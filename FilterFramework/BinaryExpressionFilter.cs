@@ -5,11 +5,13 @@ using System.Linq.Expressions;
 
 #endregion
 
-namespace FilterFramework.Model
+namespace FilterFramework
 {
     internal class BinaryExpressionFilter<T> : IFilter<T>
     {
-        private static readonly ParameterExpression MyParameterExpression = Expression.Parameter(typeof (T), "T");
+        #region Members and Properties
+
+        private static readonly ParameterExpression MyParameterExpression = Expression.Parameter(typeof(T), "T");
         private MemberExpression MyLeftExpression { get; set; }
         private ConstantExpression MyRightExpression { get; set; }
         private BinaryExpression MyBinaryExpression { get; set; }
@@ -22,6 +24,44 @@ namespace FilterFramework.Model
         public string Operator { get; private set; }
 
         public bool IsEnabled { get; set; }
+
+        #endregion
+
+        #region Constructor, Initialization, and Disposal
+
+        public BinaryExpressionFilter(string left, string op, string right)
+        {
+            LeftExpression = left;
+            RightExpression = right;
+            MyLeftExpression = Expression.Property(MyParameterExpression, left);
+            MyRightExpression = BinaryOperatorFactory.CreateConstantExpression(MyLeftExpression, right);
+            TryChangingOperator(op, MyRightExpression);
+        }
+
+        #endregion
+
+        #region Methods
+
+        public bool TryChangingRightExpression(string right)
+        {
+            try
+            {
+                var exp = BinaryOperatorFactory.CreateConstantExpression(MyLeftExpression, right);
+                if (TryChangingOperator(Operator, exp))
+                {
+                    MyRightExpression = exp;
+                    RightExpression = right;
+                    // have to reset the expressionfunc
+                    SetExpressionFunc();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
         public bool TryChangingOperator(string op)
         {
@@ -48,44 +88,16 @@ namespace FilterFramework.Model
             }
         }
 
-        public bool TryChangingRightExpression(string right)
-        {
-            try
-            {
-                var exp = BinaryOperatorFactory.CreateConstantExpression(MyLeftExpression, right);
-                if (TryChangingOperator(Operator, exp))
-                {
-                    MyRightExpression = exp;
-                    RightExpression = right;
-                    // have to reset the expressionfunc
-                    SetExpressionFunc();
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
         private void SetExpressionFunc()
         {
             MyExpressionFunc = Expression.Lambda<Func<T, bool>>(MyBinaryExpression, MyParameterExpression);
             MyExpressionFunc.Compile();
         }
 
-        public BinaryExpressionFilter(string left, string op, string right)
-        {
-            LeftExpression = left;
-            RightExpression = right;
-            MyLeftExpression = Expression.Property(MyParameterExpression, left);
-            MyRightExpression = BinaryOperatorFactory.CreateConstantExpression(MyLeftExpression, right);
-            TryChangingOperator(op, MyRightExpression);
-        }
+        #endregion
     }
 
-    internal class BinaryOperatorFactory
+    internal static class BinaryOperatorFactory
     {
         internal static BinaryExpression CreateBinaryExpression(Expression left, string op,
                                                                 ConstantExpression right)
@@ -113,9 +125,9 @@ namespace FilterFramework.Model
             var type = left.Type;
 
             // TODO: address culture
-            if(type==typeof(int))
+            if (type == typeof(int))
                 return Expression.Constant(Int32.Parse(right));
-            if(type==typeof(double))
+            if (type == typeof(double))
                 return Expression.Constant(Double.Parse(right));
             if (type.BaseType == typeof(Enum))
                 return Expression.Constant(Enum.Parse(type, right));

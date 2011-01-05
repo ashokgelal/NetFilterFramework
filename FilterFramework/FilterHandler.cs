@@ -2,38 +2,47 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using FilterFramework.Model;
 
 #endregion
 
-namespace FilterFramework.Controller
+namespace FilterFramework
 {
     public class FilterHandler<T>
     {
+        #region Members and Properties
+
         private FilterCollection<T> MyFilterCollection { get; set; }
+
+        #endregion
+
+        #region Constructor, Initialization, and Disposal
 
         public FilterHandler()
         {
             MyFilterCollection = new FilterCollection<T>();
         }
 
+        #endregion
+
+        #region Methods
+
         public IEnumerable<T> ApplyFilter(IEnumerable<T> coll)
         {
             return MyFilterCollection.ApplyFilter(coll);
         }
 
-        public IFilter<T> HandleNewFilterRequest(string expression)
+        public IFilter<T> CreateBinaryFilter(string expression)
         {
             string[] words = expression.Split(' ');
 
             if (words.Length == 3)
-                return HandleNewFilterRequest(words[0], words[1], words[2]);
+                return CreateBinaryFilter(words[0], words[1], words[2]);
             return null;
         }
 
-        public IFilter<T> HandleNewFilterRequest(string left, string op, string right)
+        public IFilter<T> CreateBinaryFilter(string left, string op, string right)
         {
-                // binary expression
+            // binary expression
             IFilter<T> filter = new BinaryExpressionFilter<T>(left, op, right) {IsEnabled = true};
             MyFilterCollection.Add(filter);
             return filter;
@@ -65,5 +74,7 @@ namespace FilterFramework.Controller
             MyFilterCollection.Remove(filter);
             Refresh();
         }
+
+        #endregion
     }
 }

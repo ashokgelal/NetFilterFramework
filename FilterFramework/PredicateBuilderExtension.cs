@@ -6,10 +6,12 @@ using System.Linq.Expressions;
 
 #endregion
 
-namespace FilterFramework.Model
+namespace FilterFramework
 {
     internal static class PredicateBuilderExtension
     {
+        #region Methods
+
         public static Expression<Func<T, bool>> True<T>()
         {
             return f => true;
@@ -35,5 +37,7 @@ namespace FilterFramework.Model
             return Expression.Lambda<Func<T, bool>>
                 (Expression.AndAlso(expr1.Body, invokedExpr), expr1.Parameters);
         }
+
+        #endregion
     }
 }

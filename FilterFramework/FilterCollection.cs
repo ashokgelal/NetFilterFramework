@@ -52,5 +52,6 @@ namespace FilterFramework
         }
 
         #endregion
+
     }
 }

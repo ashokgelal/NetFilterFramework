@@ -94,6 +94,11 @@ namespace FilterFramework
             MyExpressionFunc.Compile();
         }
 
+        public override string ToString()
+        {
+            return String.Format("{0} {1} {2}", LeftExpression, Operator, RightExpression);
+        }
+
         #endregion
     }
 
@@ -131,6 +136,8 @@ namespace FilterFramework
                 return Expression.Constant(Double.Parse(right));
             if (type.BaseType == typeof(Enum))
                 return Expression.Constant(Enum.Parse(type, right));
+            if (type == typeof(Boolean))
+                return Expression.Constant(Boolean.Parse(right));
             return Expression.Constant(right);
         }
     }

@@ -162,6 +162,8 @@ namespace FilterFramework
                 return Expression.Constant(Enum.Parse(type, right));
             if (type == typeof(Boolean))
                 return Expression.Constant(Boolean.Parse(right));
+            if(type==typeof(UInt32))
+                return Expression.Constant(UInt32.Parse(right));
             return Expression.Constant(right);
         }
     }

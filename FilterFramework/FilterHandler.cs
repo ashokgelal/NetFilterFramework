@@ -63,19 +63,32 @@ namespace FilterFramework
 
         public IFilter<T> CreateBinaryFilter(string expression)
         {
+            return CreateBinaryFilter(expression, true);
+        }
+
+        public IFilter<T> CreateBinaryFilter(string expression, bool doAnd)
+        {
             string[] words = expression.Split(' ');
 
             if (words.Length == 3)
-                return CreateBinaryFilter(words[0], words[1], words[2]);
+                return CreateBinaryFilter(words[0], words[1], words[2], doAnd);
             return null;
+        }
+
+        private IFilter<T> CreateBinaryFilter(string left, string op, string right, bool doAnd)
+        {
+            // binary expression
+            IFilter<T> filter = new BinaryExpressionFilter<T>(left, op, right)
+                                    {
+                                        IsEnabled = true, DoAnd = doAnd
+                                    };
+            MyFilterCollection.Add(filter);
+            return filter;
         }
 
         public IFilter<T> CreateBinaryFilter(string left, string op, string right)
         {
-            // binary expression
-            IFilter<T> filter = new BinaryExpressionFilter<T>(left, op, right) {IsEnabled = true};
-            MyFilterCollection.Add(filter);
-            return filter;
+            return CreateBinaryFilter(left, op, right, true);
         }
 
         public ReadOnlyCollection<IFilter<T>> GetAllFilters()
@@ -103,6 +116,11 @@ namespace FilterFramework
         {
             MyFilterCollection.Remove(filter);
             Refresh();
+        }
+
+        public bool HasFilters()
+        {
+            return MyFilterCollection.Count > 0;
         }
 
         public string ExportFiltersToXml(string filename)

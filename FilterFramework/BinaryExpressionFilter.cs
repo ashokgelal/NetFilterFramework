@@ -48,6 +48,7 @@ namespace FilterFramework
         public string Operator { get; private set; }
 
         public bool IsEnabled { get; set; }
+        public bool DoAnd { get; set; }
 
         #endregion
 

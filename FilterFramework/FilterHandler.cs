@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -68,11 +69,24 @@ namespace FilterFramework
 
         public IFilter<T> CreateBinaryFilter(string expression, bool doAnd)
         {
-            string[] words = expression.Split(' ');
+            IFilter<T> retVal = null;
+            try
+            {
+                var w1 = expression.Substring(0, expression.IndexOf(" "));
+                expression = expression.Remove(0, w1.Length + 1);
+                var w2 = expression.Substring(0, expression.IndexOf(" "));
+                expression = expression.Remove(0, w2.Length + 1);
+                var w3 = expression;
 
-            if (words.Length == 3)
-                return CreateBinaryFilter(words[0], words[1], words[2], doAnd);
-            return null;
+                if (!String.IsNullOrEmpty(w3))
+                    retVal = CreateBinaryFilter(w1, w2, w3, doAnd);
+            }
+            catch (Exception)
+            {
+                retVal = null;
+            }
+
+            return retVal;
         }
 
         private IFilter<T> CreateBinaryFilter(string left, string op, string right, bool doAnd)

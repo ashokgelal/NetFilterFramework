@@ -38,7 +38,7 @@ namespace FilterFramework
         private static readonly ParameterExpression MyParameterExpression = Expression.Parameter(typeof(T), "T");
         private MemberExpression MyLeftExpression { get; set; }
         private ConstantExpression MyRightExpression { get; set; }
-        private BinaryExpression MyBinaryExpression { get; set; }
+        private Expression MyBinaryExpression { get; set; }
         public Expression<Func<T, bool>> MyExpressionFunc { get; private set; }
 
         public string LeftExpression { get; private set; }
@@ -129,7 +129,7 @@ namespace FilterFramework
 
     internal static class BinaryOperatorFactory
     {
-        internal static BinaryExpression CreateBinaryExpression(Expression left, string op,
+        internal static Expression CreateBinaryExpression(Expression left, string op,
                                                                 ConstantExpression right)
         {
             switch (op)
@@ -146,9 +146,23 @@ namespace FilterFramework
                     return Expression.LessThan(left, right);
                 case "!=":
                     return Expression.NotEqual(left, right);
+                case "contains":
+                    return Expression.GreaterThanOrEqual(GetMethodExpression(left, right), Expression.Constant(0));
+                case "!contains":
+                    return Expression.LessThan(GetMethodExpression(left, right), Expression.Constant(0));
             }
             return null;
         }
+
+        private static MethodCallExpression GetMethodExpression(Expression left, ConstantExpression right)
+        {
+            const string method = "IndexOf";
+            var methodCall = typeof (string).GetMethod(method, new[] {typeof (string), typeof(StringComparison)});
+            var parms = new Expression[]{right, Expression.Constant(StringComparison.OrdinalIgnoreCase)};
+            var exp =  Expression.Call(left, methodCall, parms);
+            return exp;
+        }
+
 
         internal static ConstantExpression CreateConstantExpression(MemberExpression left, string right)
         {

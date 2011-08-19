@@ -40,7 +40,7 @@ namespace FilterFramework
     {
         #region Members and Properties
 
-        private FilterCollection<T> MyFilterCollection { get; set; }
+        public FilterCollection<T> MyFilterCollection { get; set; }
 
         private const string XmlVersion = "0.1";
 
@@ -96,8 +96,12 @@ namespace FilterFramework
                                     {
                                         IsEnabled = true, DoAnd = doAnd
                                     };
-            MyFilterCollection.Add(filter);
             return filter;
+        }
+
+        public void AndFiltersWith(FilterCollection<T> obj2)
+        {
+            MyFilterCollection.AndWith(obj2);
         }
 
         public IFilter<T> CreateBinaryFilter(string left, string op, string right)
@@ -229,5 +233,10 @@ namespace FilterFramework
         }
 
         #endregion
+
+        public void AddAll(Dictionary<int,IFilter<T>>.ValueCollection values)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

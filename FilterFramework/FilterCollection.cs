@@ -37,13 +37,20 @@ namespace FilterFramework
     {
         #region Members and Properties
 
-        private Expression<Func<T, bool>> MyPredicate { get; set; }
+        public Expression<Func<T, bool>> MyPredicate { get; private set; }
 
         #endregion
 
         #region Methods
 
-        public new void Add(IFilter<T>f)
+        public void AndWith(FilterCollection<T> other)
+        {
+            if (MyPredicate == null)
+                MyPredicate = PredicateBuilderExtension.True<T>();
+            MyPredicate = MyPredicate.And(other.MyPredicate);
+        }
+
+        public new void Add(IFilter<T> f)
         {
             if (f.IsEnabled)
             {
@@ -63,6 +70,7 @@ namespace FilterFramework
             base.Add(f);
         }
 
+
         public IEnumerable<T> ApplyFilter(IEnumerable<T> coll)
         {
             IQueryable<T> query = coll.AsQueryable();
@@ -78,5 +86,12 @@ namespace FilterFramework
 
         #endregion
 
+        public void Add(IList<IFilter<T>> filters)
+        {
+            foreach (var filter in filters)
+            {
+                Add(filter);
+            }
+        }
     }
 }

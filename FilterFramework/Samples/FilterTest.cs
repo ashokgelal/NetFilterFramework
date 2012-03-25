@@ -45,7 +45,8 @@ namespace FilterFramework.Samples
         private IFilter<Student> FilterByFirstName()
         {
             // notice the space between operator and the operands
-            var filter = MyFilterHandler.CreateBinaryFilter("FirstName = Jesse");
+            var filter = MyFilterHandler.CreateBinaryFilter("FirstName = Jesse", true);
+            MyFilterHandler.MyFilterCollection.Add(filter);
             var filteredStudents = MyFilterHandler.ApplyFilter(new ReadOnlyCollection<Student>(Students));
             Console.WriteLine("\n\nStudents where First Name = Jesse\n");
             PrintList(Students, filteredStudents);
@@ -55,7 +56,8 @@ namespace FilterFramework.Samples
         private IFilter<Student> FilterByLastName()
         {
             // notice the space between operator and the operands
-            var filter = MyFilterHandler.CreateBinaryFilter("LastName = Jackson");
+            var filter = MyFilterHandler.CreateBinaryFilter("LastName = Jackson", true);
+            MyFilterHandler.MyFilterCollection.Add(filter);
             var filteredStudents = MyFilterHandler.ApplyFilter(new ReadOnlyCollection<Student>(Students));
             Console.WriteLine("\n\nStudents where Last Name = Jackson\n");
             PrintList(Students, filteredStudents);
@@ -65,7 +67,8 @@ namespace FilterFramework.Samples
         private IFilter<Student> FilterFirstThreeStudents()
         {
             // notice the space between operator and the operands
-            var filter = MyFilterHandler.CreateBinaryFilter("Id <= 3");
+            var filter = MyFilterHandler.CreateBinaryFilter("Id <= 3", true);
+            MyFilterHandler.MyFilterCollection.Add(filter);
             var filteredStudents = MyFilterHandler.ApplyFilter(new ReadOnlyCollection<Student>(Students));
             Console.WriteLine("\n\nFirst three students (by Id)\n");
             PrintList(Students, filteredStudents);
@@ -75,7 +78,8 @@ namespace FilterFramework.Samples
         private IFilter<Student> FilterInternationalStudents()
         {
             // notice the space between operator and the operands
-            var filter = MyFilterHandler.CreateBinaryFilter("IsInternational = True");
+            var filter = MyFilterHandler.CreateBinaryFilter("IsInternational = True", true);
+            MyFilterHandler.MyFilterCollection.Add(filter);
             var filteredStudents = MyFilterHandler.ApplyFilter(new ReadOnlyCollection<Student>(Students));
             Console.WriteLine("\n\nInternational students\n");
             PrintList(Students, filteredStudents);
@@ -85,9 +89,10 @@ namespace FilterFramework.Samples
         private IFilter<Student> FilterByGender(Gender g)
         {
             // notice the space between operator and the operands
-            var filter = MyFilterHandler.CreateBinaryFilter(String.Format("Gender = {0}", g));
+            var filter = MyFilterHandler.CreateBinaryFilter(String.Format("Gender = {0}", g), true);
+            MyFilterHandler.MyFilterCollection.Add(filter);
             var filteredStudents = MyFilterHandler.ApplyFilter(new ReadOnlyCollection<Student>(Students));
-            Console.WriteLine(String.Format("\n\n{0} students\n",g));
+            Console.WriteLine(String.Format("\n\n{0} students\n", g));
             PrintList(Students, filteredStudents);
             return filter;
         }
@@ -113,15 +118,32 @@ namespace FilterFramework.Samples
                                new Student("Jose", "Kitterman") {IsInternational = false, Gender = Gender.Female},
                                new Student("Nancy", "Jackson") {IsInternational = false, Gender = Gender.Female},
                                new Student("Jesse", "Roberts") {IsInternational = false, Gender = Gender.Male},
-                               new Student("Bob", "Jackson") {IsInternational = false, Gender = Gender.Female}
+                               new Student("Bob", "Jackson") {IsInternational = false, Gender = Gender.Male},
+                               new Student("Bobby", "Rackson") {IsInternational = false, Gender = Gender.Female},
+                               new Student("Boba", "Bob Jackson") {IsInternational = false, Gender = Gender.Female},
                            };
 
             MyFilterHandler = new FilterHandler<Student>();
         }
 
+        private void FilterByMultipleProperties()
+        {
+            var filter = MyFilterHandler.CreateBinaryFilter("FirstName contains bob", true);
+            MyFilterHandler.MyFilterCollection.Add(filter);
+            filter = MyFilterHandler.CreateBinaryFilter("Gender = Female", true);
+            MyFilterHandler.MyFilterCollection.Add(filter);
+            filter = MyFilterHandler.CreateBinaryFilter("LastName !contains rack", true);
+            MyFilterHandler.MyFilterCollection.Add(filter);
+            var filteredStudents = MyFilterHandler.ApplyFilter(new ReadOnlyCollection<Student>(Students));
+            Console.WriteLine("\n\nFemales with LastNames containing 'son' but not 'rack' \n");
+            PrintList(Students, filteredStudents);
+        }
+
         public void RunTests()
         {
             Console.WriteLine("Original Count: {0}", Students.Count);
+            FilterByMultipleProperties();
+            MyFilterHandler.ClearFilters();
             FilterByFirstName();
             MyFilterHandler.ClearFilters();
             FilterByLastName();
@@ -137,7 +159,6 @@ namespace FilterFramework.Samples
 
             // add international students filter to Female Students
             var filter = FilterInternationalStudents();
-
             // remove international students filter
             MyFilterHandler.ClearFilter(filter);
             FilterWithCurrentFilters();

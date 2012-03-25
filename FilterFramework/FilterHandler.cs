@@ -80,13 +80,12 @@ namespace FilterFramework
 
                 if (!String.IsNullOrEmpty(w3))
                     retVal = CreateBinaryFilter(w1, w2, w3, doAnd);
+                return retVal;
             }
             catch (Exception)
             {
-                retVal = null;
+                return retVal;
             }
-
-            return retVal;
         }
 
         private IFilter<T> CreateBinaryFilter(string left, string op, string right, bool doAnd)
